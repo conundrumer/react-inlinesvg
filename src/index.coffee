@@ -51,6 +51,7 @@ isSupportedEnvironment = once ->
 # obviously very naive, but is intended to provide a good-enough solution
 # without adding too much overhead as would, for example, parsing as XML. See
 # GH-3.
+# Alternatively adds namespace
 
 uniquifyIDs = do ->
   mkAttributePattern = (attr) -> "(?:(?:\\s|\\:)#{ attr })"
@@ -89,7 +90,7 @@ uniquifyIDs = do ->
     )
     ///g
   (svgText, svgID) ->
-    uniquifyID = (id) -> "#{ id }___#{ svgID }"
+    uniquifyID = (id) -> "#{ svgID }___#{ id }"
     svgText.replace idPattern, (m, p1, p2, p3, p4, p5) ->
       if p2 then "#{ p1 }=\"#{ uniquifyID p2 }\""
       else if p4 then "#{ p3 }=\"##{ uniquifyID p4 }\""
@@ -151,10 +152,12 @@ module.exports = me =
       onError: PropTypes.func
       supportTest: PropTypes.func
       uniquifyIDs: PropTypes.bool
+      namespace: PropTypes.string
     getDefaultProps: ->
       wrapper: span
       supportTest: isSupportedEnvironment
       uniquifyIDs: true
+      namespace: ''
     getInitialState: ->
       status: Status.PENDING
     componentDidMount: ->
@@ -205,7 +208,9 @@ module.exports = me =
         @renderContents()
       )
     processSVG: (svgText) ->
-      if @props.uniquifyIDs then uniquifyIDs svgText, getHash @props.src
+      if (@props.namespace or @props.uniquifyIDs)
+        namespace = @props.namespace + if @props.uniquifyIDs then getHash @props.src else ''
+        uniquifyIDs svgText, namespace
       else svgText
 
     renderContents: ->
