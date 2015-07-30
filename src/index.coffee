@@ -90,7 +90,7 @@ uniquifyIDs = do ->
     )
     ///g
   (svgText, svgID) ->
-    uniquifyID = (id) -> "#{ svgID }___#{ id }"
+    uniquifyID = (id) -> "#{ svgID }#{ id }"
     svgText.replace idPattern, (m, p1, p2, p3, p4, p5) ->
       if p2 then "#{ p1 }=\"#{ uniquifyID p2 }\""
       else if p4 then "#{ p3 }=\"##{ uniquifyID p4 }\""
